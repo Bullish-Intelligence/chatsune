@@ -1,0 +1,66 @@
+services:
+  tailscale:
+    image: tailscale/tailscale:stable
+    container_name: chatsune-tailscale
+    hostname: ${TS_HOSTNAME:-chatsune-server}
+    environment:
+      - TS_AUTHKEY_FILE=${TS_AUTHKEY_FILE:-/run/secrets/ts_authkey}
+      - TS_STATE_DIR=${TS_STATE_DIR:-/var/lib/tailscale}
+      - TS_EXTRA_ARGS=${TS_EXTRA_ARGS:-}
+      - TS_USERSPACE=${TS_USERSPACE:-true}
+      - TS_ENABLE_HEALTH_CHECK=${TS_ENABLE_HEALTH_CHECK:-true}
+      - TS_ENABLE_METRICS=${TS_ENABLE_METRICS:-false}
+      - TS_ACCEPT_DNS=${TS_ACCEPT_DNS:-true}
+    volumes:
+      - tailscale_state:/var/lib/tailscale
+      - ./.secrets/ts_authkey:/run/secrets/ts_authkey:ro
+    healthcheck:
+      test: ["CMD-SHELL", "tailscale status >/dev/null 2>&1 || exit 1"]
+      interval: 20s
+      timeout: 5s
+      retries: 6
+    restart: unless-stopped
+
+  vllm:
+    build:
+      context: .
+      dockerfile: images/vllm/Dockerfile
+    container_name: chatsune-vllm
+    network_mode: service:tailscale
+    depends_on:
+      tailscale:
+        condition: service_healthy
+    environment:
+      - CONFIG_PATH=${CONFIG_PATH:-/app/config/server-config.yaml}
+      - HF_TOKEN_FILE=${HF_TOKEN_FILE:-/run/secrets/hf_token}
+      - VLLM_API_KEY_FILE=${VLLM_API_KEY_FILE:-/run/secrets/vllm_api_key}
+      - CHATSUNE_STRICT_CONFIG=${CHATSUNE_STRICT_CONFIG:-true}
+      - ALLOW_INSECURE_ENV_SECRETS=${ALLOW_INSECURE_ENV_SECRETS:-false}
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    volumes:
+      - hf_cache:/models/cache
+      - model_store:/models/store
+      - adapters:/models/adapters
+      - ./config/server-config.yaml:/app/config/server-config.yaml:ro
+      - ./config/chat-templates:/app/config/chat-templates:ro
+      - ./.secrets/hf_token:/run/secrets/hf_token:ro
+      - ./.secrets/vllm_api_key:/run/secrets/vllm_api_key:ro
+    ipc: host
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import socket;s=socket.socket();s.settimeout(2);s.connect(('127.0.0.1', 8000));s.close()\""]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+    restart: unless-stopped
+
+volumes:
+  tailscale_state:
+  hf_cache:
+  model_store:
+  adapters:

@@ -1,0 +1,34 @@
+services:
+  static-assets:
+    image: python:3.11-slim
+    container_name: chatsune-static-assets
+    network_mode: service:tailscale
+    depends_on:
+      - tailscale
+    working_dir: /app
+    command: python -m http.server 8001 --directory /app/static
+    volumes:
+      - ./examples/static-assets/site:/app/static:ro
+    profiles:
+      - static-assets
+    restart: unless-stopped
+
+  tailscale-tun:
+    image: tailscale/tailscale:stable
+    container_name: chatsune-tailscale-tun
+    hostname: ${TS_HOSTNAME:-chatsune-server}
+    environment:
+      - TS_AUTHKEY_FILE=${TS_AUTHKEY_FILE:-/run/secrets/ts_authkey}
+      - TS_STATE_DIR=${TS_STATE_DIR:-/var/lib/tailscale}
+      - TS_EXTRA_ARGS=${TS_EXTRA_ARGS:-}
+      - TS_USERSPACE=false
+    volumes:
+      - tailscale_state:/var/lib/tailscale
+      - /dev/net/tun:/dev/net/tun
+      - ./.secrets/ts_authkey:/run/secrets/ts_authkey:ro
+    cap_add:
+      - net_admin
+      - sys_module
+    profiles:
+      - tun
+    restart: unless-stopped

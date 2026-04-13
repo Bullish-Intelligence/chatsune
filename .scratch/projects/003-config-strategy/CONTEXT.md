@@ -1,14 +1,14 @@
 # CONTEXT
 
-Completed Step 2 bootstrap implementation:
-- Added `src/chatsune/config_loader.py` with YAML loading, schema checks, defaults merge, secret-file resolution, and vLLM argv rendering.
-- Added `src/chatsune/bootstrap.py` runtime entrypoint with redacted command logging and `execvpe` handoff.
-- Updated CLI/config exports to use the new loader model.
-- Added unit tests for unknown-key rejection, secret precedence/conflicts, command rendering, and redaction.
+Completed Step 3 compose/image cutover:
+- vLLM image entrypoint now runs `python -m chatsune.bootstrap`.
+- Compose no longer passes broad `VLLM_*`/raw secret env sets.
+- Compose now passes explicit config and secret-file env vars only (`CONFIG_PATH`, `*_FILE`, strictness toggles).
+- Secret files are mounted read-only and separated by service responsibility.
+- Tun profile was updated to remove `env_file` and use `TS_AUTHKEY_FILE` mount model.
 
 Validation status:
-- `python -m compileall -q src tests scripts` passed.
-- `python -m pytest ...` could not run because `pytest` is not installed in this environment.
+- `docker compose -f compose.yaml -f compose.profiles.yaml config` passed.
 
 Next:
-- Cut over Compose + image entrypoint to bootstrap and `*_FILE` mounts.
+- Complete docs, tests, and cleanup/verification for final acceptance.
