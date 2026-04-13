@@ -6,3 +6,8 @@ No implementation decisions recorded yet.
 - `config/server-config.example.yaml` is tracked as source template.
 - `config/server-config.yaml` is gitignored to keep per-host runtime tuning local.
 - This matches the personal-hardware operator model while preserving deterministic schema via template + loader validation.
+
+## 2026-04-13 — Single loader owns config merge and secret resolution
+- Implemented strict schema validation in Python (`config_loader.py`) instead of shell parsing.
+- Runtime now has one deterministic path from YAML + env contract to final vLLM argv.
+- Secret-file and raw-env conflict behavior is enforced centrally (`ALLOW_INSECURE_ENV_SECRETS` gate).
