@@ -16,3 +16,7 @@ No implementation decisions recorded yet.
 - Compose runtime services now use explicit `environment` mappings only.
 - This prevents accidental environment bleed and keeps secret/config provenance explicit.
 - Applied to both baseline and tun profile variants.
+
+## 2026-04-13 — Remove legacy shell entrypoint from active path
+- Runtime now starts through `python -m chatsune.bootstrap` from the vLLM image.
+- This centralizes schema/precedence/security logic in Python and eliminates duplicated env parsing logic.
