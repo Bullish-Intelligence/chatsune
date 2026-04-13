@@ -1,0 +1,32 @@
+vllm:
+  model: Qwen/Qwen3-4B-Instruct-2507-FP8
+  host: 0.0.0.0
+  port: 8000
+  dtype: auto
+  max_model_len: 32768
+  max_num_seqs: 32
+  gpu_memory_utilization: 0.95
+  tensor_parallel_size: 1
+  trust_remote_code: false
+  disable_log_requests: false
+  enable_auto_tool_choice: false
+  tool_call_parser: null
+  chat_template: null
+  response_role: assistant
+  enable_lora: false
+  max_loras: 4
+  max_lora_rank: 64
+  lora_modules: []
+  extra_args: []
+
+paths:
+  download_dir: /models/cache
+  adapter_dir: /models/adapters
+
+health:
+  startup_timeout_seconds: 900
+  check_path: /v1/models
+
+logging:
+  level: info
+  redact_secrets: true
