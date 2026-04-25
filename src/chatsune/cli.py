@@ -27,7 +27,15 @@ def cmd_print_config(args: argparse.Namespace) -> int:
 
 
 def cmd_smoke_test(args: argparse.Namespace) -> int:
-    ok, detail = check_health(args.server_url, timeout=args.timeout)
+    check_path = args.check_path
+    if check_path is None:
+        try:
+            cfg = load_runtime_config()
+            check_path = str(cfg.data["health"].get("check_path") or "")
+        except ConfigError:
+            check_path = None
+
+    ok, detail = check_health(args.server_url, timeout=args.timeout, preferred_path=check_path)
     print(detail)
     return 0 if ok else 1
 
@@ -46,6 +54,7 @@ def build_parser() -> argparse.ArgumentParser:
     smoke = sub.add_parser("smoke-test", help="Run lightweight health check")
     smoke.add_argument("--server-url", default=os.environ.get("SERVER_URL", "http://127.0.0.1:8000"))
     smoke.add_argument("--timeout", type=int, default=5)
+    smoke.add_argument("--check-path", default=None, help="Health path to probe first (default: config health.check_path)")
     smoke.set_defaults(func=cmd_smoke_test)
 
     return parser

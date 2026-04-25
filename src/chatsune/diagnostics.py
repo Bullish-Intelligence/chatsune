@@ -12,8 +12,19 @@ def fetch_json(url: str, timeout: int = 5) -> dict:
     return json.loads(payload)
 
 
-def check_health(base_url: str, timeout: int = 5) -> tuple[bool, str]:
-    for path in ("/health", "/v1/models"):
+def _normalize_path(path: str) -> str:
+    return path if path.startswith("/") else f"/{path}"
+
+
+def check_health(base_url: str, timeout: int = 5, preferred_path: str | None = None) -> tuple[bool, str]:
+    candidates: list[str] = []
+    if preferred_path:
+        candidates.append(_normalize_path(preferred_path))
+    for fallback in ("/health", "/v1/models"):
+        if fallback not in candidates:
+            candidates.append(fallback)
+
+    for path in candidates:
         url = f"{base_url.rstrip('/')}{path}"
         try:
             fetch_json(url, timeout=timeout)

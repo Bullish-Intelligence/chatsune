@@ -27,11 +27,7 @@ paths:
   download_dir: /models/cache
   adapter_dir: /models/adapters
 health:
-  startup_timeout_seconds: 900
   check_path: /v1/models
-logging:
-  level: info
-  redact_secrets: true
 """.strip()
 
 
@@ -103,11 +99,7 @@ paths:
   download_dir: /models/cache
   adapter_dir: /models/adapters
 health:
-  startup_timeout_seconds: 900
   check_path: /v1/models
-logging:
-  level: info
-  redact_secrets: true
 """.strip(),
     )
 
@@ -122,3 +114,38 @@ logging:
     assert "a=/models/adapters/a" in cmd
     assert "--seed" in cmd
     assert "7" in cmd
+
+
+def test_rejects_removed_startup_timeout_config_key(tmp_path: Path) -> None:
+    config_path = tmp_path / "server-config.yaml"
+    _write_yaml(
+        config_path,
+        """
+vllm:
+  model: test/model
+paths: {}
+health:
+  startup_timeout_seconds: 900
+""".strip(),
+    )
+
+    with pytest.raises(ConfigError, match="unknown health keys: startup_timeout_seconds"):
+        load_runtime_config(env={"CONFIG_PATH": str(config_path)})
+
+
+def test_rejects_removed_logging_section(tmp_path: Path) -> None:
+    config_path = tmp_path / "server-config.yaml"
+    _write_yaml(
+        config_path,
+        """
+vllm:
+  model: test/model
+paths: {}
+health: {}
+logging:
+  level: info
+""".strip(),
+    )
+
+    with pytest.raises(ConfigError, match="unknown top-level keys: logging"):
+        load_runtime_config(env={"CONFIG_PATH": str(config_path)})

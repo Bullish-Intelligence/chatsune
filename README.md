@@ -43,6 +43,7 @@ Standalone private vLLM + Tailscale sidecar runtime.
 - Validate config/secrets: `python -m chatsune.cli validate-env`
 - Print effective config: `python -m chatsune.cli print-config --show-command`
 - Health smoke: `python -m chatsune.cli smoke-test --server-url http://127.0.0.1:8000`
+  - Uses configured `health.check_path` first by default
 - Load LoRA: `python scripts/adapter_manager.py --name <name> --path <path>`
 
 ## Repo layout

@@ -56,6 +56,8 @@ Example:
   - `python -m chatsune.cli validate-env`
 - Print effective config and command:
   - `python -m chatsune.cli print-config --show-command`
+- Smoke test with explicit path override:
+  - `python -m chatsune.cli smoke-test --check-path /v1/models`
 
 ## Security Notes (Private Tailnet Context)
 

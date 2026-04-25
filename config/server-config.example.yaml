@@ -24,9 +24,4 @@ paths:
   adapter_dir: /models/adapters
 
 health:
-  startup_timeout_seconds: 900
   check_path: /v1/models
-
-logging:
-  level: info
-  redact_secrets: true

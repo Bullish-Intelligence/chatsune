@@ -13,7 +13,6 @@ vllm:
   host: 0.0.0.0
 paths: {}
 health: {}
-logging: {}
 """.strip(),
         encoding="utf-8",
     )

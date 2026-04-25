@@ -14,7 +14,7 @@ class ConfigError(ValueError):
     pass
 
 
-_ALLOWED_TOP_LEVEL = {"vllm", "paths", "health", "logging"}
+_ALLOWED_TOP_LEVEL = {"vllm", "paths", "health"}
 _ALLOWED_VLLM_KEYS = {
     "model",
     "host",
@@ -37,8 +37,7 @@ _ALLOWED_VLLM_KEYS = {
     "extra_args",
 }
 _ALLOWED_PATH_KEYS = {"download_dir", "adapter_dir"}
-_ALLOWED_HEALTH_KEYS = {"startup_timeout_seconds", "check_path"}
-_ALLOWED_LOGGING_KEYS = {"level", "redact_secrets"}
+_ALLOWED_HEALTH_KEYS = {"check_path"}
 
 _DEFAULTS: dict[str, Any] = {
     "vllm": {
@@ -66,12 +65,7 @@ _DEFAULTS: dict[str, Any] = {
         "adapter_dir": "/models/adapters",
     },
     "health": {
-        "startup_timeout_seconds": 900,
         "check_path": "/v1/models",
-    },
-    "logging": {
-        "level": "info",
-        "redact_secrets": True,
     },
 }
 
@@ -103,7 +97,6 @@ def _validate_shape(cfg: dict[str, Any]) -> None:
         ("vllm", _ALLOWED_VLLM_KEYS),
         ("paths", _ALLOWED_PATH_KEYS),
         ("health", _ALLOWED_HEALTH_KEYS),
-        ("logging", _ALLOWED_LOGGING_KEYS),
     ]
     for section, allowed in sections:
         data = cfg.get(section, {})
@@ -120,7 +113,6 @@ def _merge_with_defaults(cfg: dict[str, Any]) -> dict[str, Any]:
         "vllm": dict(_DEFAULTS["vllm"]),
         "paths": dict(_DEFAULTS["paths"]),
         "health": dict(_DEFAULTS["health"]),
-        "logging": dict(_DEFAULTS["logging"]),
     }
     for section in merged:
         incoming = cfg.get(section, {})
