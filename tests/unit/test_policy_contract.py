@@ -34,3 +34,20 @@ def test_env_example_uses_file_based_secret_vars() -> None:
     assert not any(line.startswith("HF_TOKEN=") for line in lines)
     assert not any(line.startswith("VLLM_API_KEY=") for line in lines)
     assert not any(line.startswith("TS_AUTHKEY=") for line in lines)
+
+
+def test_runtime_images_are_pinned_and_not_floating_tags() -> None:
+    compose = Path("compose.yaml").read_text(encoding="utf-8")
+    profiles = Path("compose.profiles.yaml").read_text(encoding="utf-8")
+    vllm_dockerfile = Path("images/vllm/Dockerfile").read_text(encoding="utf-8")
+    tailscale_dockerfile = Path("images/tailscale/Dockerfile").read_text(encoding="utf-8")
+
+    assert ":stable" not in compose
+    assert ":stable" not in profiles
+    assert ":latest" not in vllm_dockerfile
+    assert ":stable" not in tailscale_dockerfile
+
+    assert "tailscale/tailscale:${TAILSCALE_IMAGE_TAG:-" in compose
+    assert "tailscale/tailscale:${TAILSCALE_IMAGE_TAG:-" in profiles
+    assert "FROM vllm/vllm-openai:v" in vllm_dockerfile
+    assert "FROM tailscale/tailscale:v" in tailscale_dockerfile

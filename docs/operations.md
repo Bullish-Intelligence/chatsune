@@ -16,3 +16,13 @@
 - Print effective config: `python -m chatsune.cli print-config --show-command`
 - Validate configuration and secret wiring: `python -m chatsune.cli validate-env`
 - Load LoRA adapter: `python scripts/adapter_manager.py --name lint --path /models/adapters/lint`
+
+## Runtime Image Update Policy
+- Runtime images are pinned to explicit version tags in compose and Dockerfiles.
+- Baseline tailscale tag is configured via `.env` with `TAILSCALE_IMAGE_TAG` (default in `.env.example`).
+- Update cadence: review and bump image versions monthly.
+- Update process:
+  - bump pinned tag(s)
+  - run `devenv shell -- test`
+  - run stack smoke checks in a non-production environment
+  - document the version bump in commit/PR notes

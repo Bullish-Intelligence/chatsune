@@ -1,1 +1,1 @@
-FROM tailscale/tailscale:stable
+FROM tailscale/tailscale:v1.84.2

@@ -14,7 +14,7 @@ services:
     restart: unless-stopped
 
   tailscale-tun:
-    image: tailscale/tailscale:stable
+    image: tailscale/tailscale:${TAILSCALE_IMAGE_TAG:-v1.84.2}
     container_name: chatsune-tailscale-tun
     hostname: ${TS_HOSTNAME:-chatsune-server}
     environment:
