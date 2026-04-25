@@ -5,8 +5,9 @@ import json
 import os
 import sys
 
-from .config_loader import ConfigError, format_command, load_runtime_config
+from .config_loader import ConfigError, load_runtime_config
 from .diagnostics import check_health
+from .redaction import redact_command
 
 
 def cmd_validate_env(_: argparse.Namespace) -> int:
@@ -21,7 +22,7 @@ def cmd_print_config(args: argparse.Namespace) -> int:
     if args.show_command:
         cmd = cfg.build_vllm_command()
         print("\nCommand:")
-        print(format_command(cmd))
+        print(redact_command(cmd))
     return 0
 
 
