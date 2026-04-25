@@ -149,8 +149,8 @@ def _validate_secret_file(path: Path, strict: bool) -> None:
 
     if os.name == "posix":
         mode = stat.S_IMODE(path.stat().st_mode)
-        if mode & 0o022:
-            msg = f"secret file must not be group/world writable: {path} (mode {oct(mode)})"
+        if mode & 0o077:
+            msg = f"secret file must be owner-only (no group/world permissions): {path} (mode {oct(mode)})"
             if strict:
                 raise ConfigError(msg)
 

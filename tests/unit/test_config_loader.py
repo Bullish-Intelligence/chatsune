@@ -57,6 +57,43 @@ def test_secret_file_resolution(tmp_path: Path) -> None:
     assert cfg.hf_token == "secret-token"
 
 
+def test_rejects_group_world_readable_secret_file_in_strict_mode(tmp_path: Path) -> None:
+    config_path = tmp_path / "server-config.yaml"
+    _write_yaml(config_path, _base_yaml())
+
+    token_path = tmp_path / "hf_token"
+    token_path.write_text("secret-token\n", encoding="utf-8")
+    token_path.chmod(0o644)
+
+    with pytest.raises(ConfigError, match="owner-only"):
+        load_runtime_config(
+            env={
+                "CONFIG_PATH": str(config_path),
+                "HF_TOKEN_FILE": str(token_path),
+                "CHATSUNE_STRICT_CONFIG": "true",
+            }
+        )
+
+
+def test_allows_group_world_readable_secret_file_in_non_strict_mode(tmp_path: Path) -> None:
+    config_path = tmp_path / "server-config.yaml"
+    _write_yaml(config_path, _base_yaml())
+
+    token_path = tmp_path / "hf_token"
+    token_path.write_text("secret-token\n", encoding="utf-8")
+    token_path.chmod(0o644)
+
+    cfg = load_runtime_config(
+        env={
+            "CONFIG_PATH": str(config_path),
+            "HF_TOKEN_FILE": str(token_path),
+            "CHATSUNE_STRICT_CONFIG": "false",
+        }
+    )
+
+    assert cfg.hf_token == "secret-token"
+
+
 def test_rejects_env_secret_when_file_exists_without_override(tmp_path: Path) -> None:
     config_path = tmp_path / "server-config.yaml"
     _write_yaml(config_path, _base_yaml())
