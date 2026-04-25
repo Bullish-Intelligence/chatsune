@@ -1,7 +1,13 @@
 # LoRA Example
 
-Set:
-- `VLLM_ENABLE_LORA=true`
-- `VLLM_LORA_MODULES="lint=/models/adapters/lint"`
+Configure `config/server-config.yaml`:
 
-Then start the stack normally.
+```yaml
+vllm:
+  enable_lora: true
+  lora_modules:
+    - lint=/models/adapters/lint
+```
+
+Then start the stack normally and optionally load more adapters dynamically:
+- `python scripts/adapter_manager.py --name lint --path /models/adapters/lint`
