@@ -215,3 +215,7 @@ __marimo__/
 .secrets/*
 !.secrets/.gitkeep
 config/server-config.yaml
+
+# devenv generated state
+.devenv/
+.devenv.flake.nix
