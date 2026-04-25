@@ -12,17 +12,20 @@ This runtime uses three configuration inputs:
    - `cp .env.example .env`
 2. Create local secret directory and lock permissions:
    - `mkdir -p .secrets && chmod 700 .secrets`
-3. Create secret files:
+3. Create required secret files:
    - `printf '%s\n' '<tailscale-auth-key>' > .secrets/ts_authkey`
    - `printf '%s\n' '<hf-token>' > .secrets/hf_token`
-   - `printf '%s\n' '<vllm-api-key>' > .secrets/vllm_api_key` (optional)
 4. Lock secret file permissions:
-   - `chmod 600 .secrets/ts_authkey .secrets/hf_token .secrets/vllm_api_key`
+   - `chmod 600 .secrets/ts_authkey .secrets/hf_token`
 5. Copy runtime config template:
    - `cp config/server-config.example.yaml config/server-config.yaml`
 6. Edit `config/server-config.yaml` for your model/runtime tuning.
-7. Start services:
+7. Start baseline services:
    - `docker compose up -d --build`
+8. Optional: enable API key auth for vLLM:
+   - `printf '%s\n' '<vllm-api-key>' > .secrets/vllm_api_key`
+   - `chmod 600 .secrets/vllm_api_key`
+   - `docker compose -f compose.yaml -f compose.auth.yaml up -d --build`
 
 ## Secret Rotation
 
@@ -48,6 +51,7 @@ Example:
 
 - Render compose:
   - `docker compose -f compose.yaml -f compose.profiles.yaml config`
+  - `docker compose -f compose.yaml -f compose.auth.yaml config` (if using API key auth)
 - Validate config:
   - `python -m chatsune.cli validate-env`
 - Print effective config and command:

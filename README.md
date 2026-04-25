@@ -14,18 +14,21 @@ Standalone private vLLM + Tailscale sidecar runtime.
    - `cp .env.example .env`
 2. Create and secure local secrets directory:
    - `mkdir -p .secrets && chmod 700 .secrets`
-3. Add secrets (and lock file perms):
+3. Add required secrets (and lock file perms):
    - `printf '%s\n' '<tailscale-auth-key>' > .secrets/ts_authkey`
    - `printf '%s\n' '<hf-token>' > .secrets/hf_token`
-   - `printf '%s\n' '<vllm-api-key>' > .secrets/vllm_api_key` (optional)
-   - `chmod 600 .secrets/ts_authkey .secrets/hf_token .secrets/vllm_api_key`
+   - `chmod 600 .secrets/ts_authkey .secrets/hf_token`
 4. Copy runtime config template:
    - `cp config/server-config.example.yaml config/server-config.yaml`
-5. Start stack:
+5. Start baseline stack (no API key required):
    - `docker compose up -d --build`
-6. Check logs:
+6. Optional: enable API-key-protected mode:
+   - `printf '%s\n' '<vllm-api-key>' > .secrets/vllm_api_key`
+   - `chmod 600 .secrets/vllm_api_key`
+   - `docker compose -f compose.yaml -f compose.auth.yaml up -d --build`
+7. Check logs:
    - `docker logs -f chatsune-vllm`
-7. Smoke test (from a tailnet-connected machine):
+8. Smoke test (from a tailnet-connected machine):
    - `uv run scripts/smoke_test.py`
 
 ## Optional profiles
@@ -33,6 +36,8 @@ Standalone private vLLM + Tailscale sidecar runtime.
   - `docker compose -f compose.yaml -f compose.profiles.yaml --profile static-assets up -d`
 - Tun networking variant:
   - `docker compose -f compose.yaml -f compose.profiles.yaml --profile tun up -d`
+- API key auth overlay:
+  - `docker compose -f compose.yaml -f compose.auth.yaml up -d`
 
 ## Helper commands
 - Validate config/secrets: `python -m chatsune.cli validate-env`
@@ -42,6 +47,7 @@ Standalone private vLLM + Tailscale sidecar runtime.
 
 ## Repo layout
 - `compose.yaml`: baseline runtime stack
+- `compose.auth.yaml`: optional API-key overlay for vLLM
 - `compose.profiles.yaml`: optional overlays
 - `config/server-config.example.yaml`: tracked runtime config template
 - `docs/configuration.md`: setup, rotation, debug, validation runbook

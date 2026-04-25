@@ -1,0 +1,6 @@
+services:
+  vllm:
+    environment:
+      - VLLM_API_KEY_FILE=${VLLM_API_KEY_FILE:-/run/secrets/vllm_api_key}
+    volumes:
+      - ./.secrets/vllm_api_key:/run/secrets/vllm_api_key:ro

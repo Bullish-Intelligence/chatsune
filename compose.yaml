@@ -33,7 +33,6 @@ services:
     environment:
       - CONFIG_PATH=${CONFIG_PATH:-/app/config/server-config.yaml}
       - HF_TOKEN_FILE=${HF_TOKEN_FILE:-/run/secrets/hf_token}
-      - VLLM_API_KEY_FILE=${VLLM_API_KEY_FILE:-/run/secrets/vllm_api_key}
       - CHATSUNE_STRICT_CONFIG=${CHATSUNE_STRICT_CONFIG:-true}
       - ALLOW_INSECURE_ENV_SECRETS=${ALLOW_INSECURE_ENV_SECRETS:-false}
     deploy:
@@ -50,7 +49,6 @@ services:
       - ./config/server-config.yaml:/app/config/server-config.yaml:ro
       - ./config/chat-templates:/app/config/chat-templates:ro
       - ./.secrets/hf_token:/run/secrets/hf_token:ro
-      - ./.secrets/vllm_api_key:/run/secrets/vllm_api_key:ro
     ipc: host
     healthcheck:
       test: ["CMD-SHELL", "python -c \"import socket;s=socket.socket();s.settimeout(2);s.connect(('127.0.0.1', 8000));s.close()\""]

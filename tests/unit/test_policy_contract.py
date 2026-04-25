@@ -6,8 +6,22 @@ from pathlib import Path
 def test_compose_services_do_not_use_env_file() -> None:
     compose = Path("compose.yaml").read_text(encoding="utf-8")
     profiles = Path("compose.profiles.yaml").read_text(encoding="utf-8")
+    auth = Path("compose.auth.yaml").read_text(encoding="utf-8")
     assert "env_file:" not in compose
     assert "env_file:" not in profiles
+    assert "env_file:" not in auth
+
+
+def test_baseline_compose_does_not_require_vllm_api_key_file() -> None:
+    compose = Path("compose.yaml").read_text(encoding="utf-8")
+    assert "VLLM_API_KEY_FILE=" not in compose
+    assert "./.secrets/vllm_api_key:/run/secrets/vllm_api_key:ro" not in compose
+
+
+def test_auth_overlay_adds_vllm_api_key_file_wiring() -> None:
+    auth = Path("compose.auth.yaml").read_text(encoding="utf-8")
+    assert "VLLM_API_KEY_FILE=" in auth
+    assert "./.secrets/vllm_api_key:/run/secrets/vllm_api_key:ro" in auth
 
 
 def test_env_example_uses_file_based_secret_vars() -> None:
